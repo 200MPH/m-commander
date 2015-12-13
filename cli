@@ -1,0 +1,40 @@
+#!/usr/bin/php
+<?php
+/*
+ * 
+ * This script allow only local users to execute modules from CLI Module
+ * folder only
+ * 
+ * CLI Module folder might contains automations scripts (eg. data synchronization)
+ * 
+ * Example: php cli.php module_name
+ * Example: php cli.php module_name -h
+ * Example: php cli.php module_name -v
+ * 
+ * @author Wojciech Brozyna <wojciech.brozyna@gmail.com>
+ */
+
+use mcommander\Cli;
+
+/* Autoloading
+ * If you installed this libry via composer, the best option is keep it as is
+ */
+require_once 'composer-autoload.php';
+
+
+try {
+    
+    $cli = new Cli();
+            
+    $cli->despatch($argc, $argv);
+            
+} catch (RuntimeException $re) {
+
+    Cli::renderException($re);
+        
+} catch(Exception $e) {
+    
+    Cli::renderException($e);
+  
+} 
+?>

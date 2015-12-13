@@ -1,0 +1,27 @@
+{
+    "name": "200mph/m-commander",
+    "type": "library",
+    "description": "Easy tool for executing your own module via command line",
+    "homepage": "https://github.com/200MPH/m-commander",
+    "authors": [
+        {
+            "name": "Wojciech Brozyna",
+            "email": "wojciech.brozyna@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "5.0.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "mcommander\\": "src/"
+        }
+    },
+    "extra": {
+        "module-path": ""
+    },
+    "bin": ["./cli"]
+}
