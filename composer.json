@@ -23,5 +23,5 @@
     "extra": {
         "module-path": ""
     },
-    "bin": ["cli"]
+    "bin": ["m-commander"]
 }
