@@ -8,10 +8,11 @@
  * Each module class need extends AbstractCliModule() and implement execute() method
  * 
  * Each module might have different options so typing 
- * php cli.php mod1 -h
- * might give you different output than
- * php cli.php mod2 -h
+ * php cli.php module1 -h might give you different output
+ * than php cli.php module2 -h
  *
+ * Typing -h without module name will give you this message.
+ * 
  * Module name is case sensitive so myModule is not the same as MyModule
  * 
  * @author Wojciech Brozyna <wojciech.brozyna@gmail.com>
@@ -53,19 +54,52 @@ class Cli {
         
         $this->argsTmp = $argv;
         
-        $this->filter();
-        
-        $this->isModuleProvided();
-        
-        // after filtering will be always as a last array element
-        $module = end($this->argsTmp);
-        
-        // try to execute module if provided
-        if($module !== false) {
+        if($this->isHelpNeeded() === true) {
             
-            $this->execute($argc, $argv);
+            $this->displayHelp();
+            
+        } else {
+            
+            $this->executeCommand();
             
         }
+        
+    }
+    
+    /**
+     * Display help message
+     * 
+     * @return void
+     */
+    public function displayMessage()
+    {
+        
+        print("Each module might have different options so typing: \n");
+        print("php cli.php module1 -h might give you different output \n");
+        print("than: \n php cli.php module2 -h \n");
+        print("Typing -h without module name will display you this message. \n");
+        
+    }
+    
+    /**
+     * Check if help message need to be displays
+     * 
+     * @return bool
+     */
+    private function isHelpNeeded()
+    {
+        
+        foreach($this->argsTmp as $key => $value) {
+            
+            if(strpos($value, '-h') !== false || strpos($value, '--help') !== false) {
+                
+                return true;
+                
+            }
+            
+        }
+        
+        return false;
         
     }
     
@@ -112,6 +146,30 @@ class Cli {
         }
         
     }
+ 
+    /**
+     * Execute command from Cli
+     * 
+     * @return void
+     */
+    private function executeCommand()
+    {
+        
+        $this->filter();
+        
+        $this->isModuleProvided();
+        
+        // after filtering will be always as a last array element
+        $module = end($this->argsTmp);
+        
+        // try to execute module if provided
+        if($module !== false) {
+            
+            $this->executeModule($argc, $argv);
+            
+        }
+        
+    }
     
     /**
      * Execute module 
@@ -121,19 +179,18 @@ class Cli {
      * 
      * @throw RuntimeException
      */
-    private function execute($argc, $argv)
+    private function executeModule($argc, $argv)
     {
         
         // after filtering will be always as a last array element
         $module = end($this->argsTmp);
-            
-        $namespace = "app\CLIModule\\$module\Controller\\$module";
-
-        if(class_exists($namespace) === true) {
+        
+        if(class_exists($module) === true) {
 
             // pass original vars in to module construct
-            $obj = new $namespace($argc, $argv);
-
+            $obj = new $module($argc, $argv);
+            
+            // execute() function is in AbstractCliModule() class
             call_user_func(array($obj, 'execute'));
 
         } else {
