@@ -1,5 +1,6 @@
 {
     "name": "200mph/m-commander",
+    "bin": ["m-commander"],
     "type": "library",
     "description": "Easy tool for executing your own module via command line",
     "homepage": "https://github.com/200MPH/m-commander",
@@ -19,9 +20,5 @@
         "psr-4": {
             "mcommander\\": "src/"
         }
-    },
-    "extra": {
-        "module-path": ""
-    },
-    "bin": ["m-commander"]
+    }
 }
