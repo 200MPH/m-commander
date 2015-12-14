@@ -126,13 +126,11 @@ class Cli {
         
         // after filtering will be always as a last array element
         $module = end($this->argsTmp);
-            
-        $namespace = "app\CLIModule\\$module\Controller\\$module";
-
-        if(class_exists($namespace) === true) {
+        
+        if(class_exists($module) === true) {
 
             // pass original vars in to module construct
-            $obj = new $namespace($argc, $argv);
+            $obj = new $module($argc, $argv);
 
             call_user_func(array($obj, 'execute'));
 
