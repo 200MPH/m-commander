@@ -22,10 +22,10 @@ abstract class AbstractCliModule {
      * 
      * @var array
      */
-    protected $args;
+    protected $args = [];
     
     /**
-     * Internal arguments for module
+     * Module options (CLI arguments)
      * Where array key is the option and value is callable method.
      * Callable method need to exists in CLI module.
      * 
@@ -33,10 +33,10 @@ abstract class AbstractCliModule {
      * 
      * @var array
      */
-    private $internalArgs = array('-v' => 'verbose', 
-                                  '--verbose' => 'verbose', 
-                                  '-h' => 'helpMsg', 
-                                  '--help' => 'helpMsg');
+    private $defaultOptions = array('-v' => 'verbose', 
+                                    '--verbose' => 'verbose', 
+                                    '-h' => 'helpMsg', 
+                                    '--help' => 'helpMsg');
     
     /**
      * Verbose mode
@@ -153,7 +153,7 @@ abstract class AbstractCliModule {
     protected function addOption($name, $callback)
     {
         
-        $this->internalArgs[$name] = $callback;
+        $this->defaultOptions[$name] = $callback;
         
     }
     
@@ -195,7 +195,7 @@ abstract class AbstractCliModule {
      */
     private function setupInternalArgs()
     {
-        
+       
         //first arg is path we don't need it here
         array_shift($this->args);
         
@@ -220,12 +220,12 @@ abstract class AbstractCliModule {
     private function loadInternalOption($value)
     {
         
-        if(isset($this->internalArgs[$value])) {
+        if(isset($this->defaultOptions[$value])) {
                     
-            if(method_exists($this, $this->internalArgs[$value])) {
+            if(method_exists($this, $this->defaultOptions[$value])) {
                 
                 //execute callable method
-                $this->{$this->internalArgs[$value]}();
+                $this->{$this->defaultOptions[$value]}();
                 
             } else {
                 

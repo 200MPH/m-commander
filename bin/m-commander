@@ -34,13 +34,11 @@ try {
 } catch (RuntimeException $re) {
 
     Cli::renderException($re);
+    $cli->displayHelp();
         
 } catch(Exception $e) {
     
     Cli::renderException($e);
-  
-} finally {
-
     $cli->displayHelp();
-    
+  
 }

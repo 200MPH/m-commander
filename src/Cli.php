@@ -26,7 +26,21 @@ class Cli {
      * Arguments copy
      * @var array
      */
-    private $argsTmp;
+    private $argsTmp = [];
+    
+    /**
+     * ARGC
+     * 
+     * @var int
+     */
+    private $argc;
+    
+    /**
+     * ARGV
+     * 
+     * @var array
+     */
+    private $argv = [];
     
     /**
      * Render exception
@@ -53,6 +67,8 @@ class Cli {
     {
         
         $this->argsTmp = $argv;
+        $this->argc = $argc;
+        $this->argv = $argv;
         
         if($this->isHelpNeeded() === true) {
             
@@ -78,8 +94,10 @@ class Cli {
         print("Example: ./vendor/bin/m-commander MyModule -h \n\n");
         
         $this->yellowOutput("NOTICE! \n");
-        print("Each module might have different options so typing: \n");
-        $this->yellowOutput("./path_to_commander MyModule -h \nmight give you different output than \n");
+        print("Each module might have different options \n");
+        print("So typing: \n");
+        $this->yellowOutput("./path_to_commander MyModule -h \n");
+        print("might give you different output than \n");
         $this->yellowOutput("./path_to_commander MyModule2 -h \n");
         print("Typing -h without module name will display this message. \n");
         
@@ -93,14 +111,18 @@ class Cli {
     private function isHelpNeeded()
     {
         
-        foreach($this->argsTmp as $key => $value) {
+        if(count($this->argsTmp) > 2) {
             
-            if(strpos($value, '-h') !== false || strpos($value, '--help') !== false) {
-                
-                return true;
-                
-            }
+            // if there is more arguments
+            // it seems like user trying to display help for module, not for this page
+            return false;
             
+        }
+        
+        if($this->argsTmp[1] === '-h' || $this->argsTmp[1] === '--help') {
+                
+            return true;
+                
         }
         
         return false;
@@ -169,7 +191,7 @@ class Cli {
         // try to execute module if provided
         if($module !== false) {
             
-            $this->executeModule($argc, $argv);
+            $this->executeModule();
             
         }
         
@@ -178,12 +200,9 @@ class Cli {
     /**
      * Execute module 
      * 
-     * @param int $argc Args count
-     * @param array $argv Argument list
-     * 
      * @throw RuntimeException
      */
-    private function executeModule($argc, $argv)
+    private function executeModule()
     {
         
         // after filtering will be always as a last array element
@@ -192,7 +211,7 @@ class Cli {
         if(class_exists($module) === true) {
 
             // pass original vars in to module construct
-            $obj = new $module($argc, $argv);
+            $obj = new $module($this->argc, $this->argv);
             
             // execute() function is in AbstractCliModule() class
             call_user_func(array($obj, 'execute'));
@@ -214,7 +233,7 @@ class Cli {
     private function yellowOutput($string)
     {
         
-        CliColors::render($string, CliColors::BG_YELLOW);
+        CliColors::render($string, CliColors::FG_YELLOW);
         
     }
     
