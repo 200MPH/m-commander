@@ -74,6 +74,10 @@ class Cli {
     public function displayMessage()
     {
         
+        print("\n Usage: ./path_to_commander ModuleName [options] \n");
+        print("Example: ./vendor/bin/m-commander MyModule -h \n\n");
+        
+        print("NOTICE! \n"); 
         print("Each module might have different options so typing: \n");
         print("php cli.php module1 -h might give you different output \n");
         print("than: \n php cli.php module2 -h \n");
