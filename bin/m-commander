@@ -22,7 +22,7 @@ use mcommander\Cli;
  * If you have your own autoloader include it here
  * Or include default-autoload.php
  */
-require_once __DIR__ . '../composer-autoload.php';
+require_once __DIR__ . '/../composer-autoload.php';
 
 
 try {
@@ -41,6 +41,6 @@ try {
   
 } finally {
 
-    $cli->displayMessage();
+    $cli->displayHelp();
     
 }

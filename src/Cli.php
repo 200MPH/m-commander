@@ -71,17 +71,17 @@ class Cli {
      * 
      * @return void
      */
-    public function displayMessage()
+    public function displayHelp()
     {
         
-        print("\n Usage: ./path_to_commander ModuleName [options] \n");
+        print("\nUsage: ./path_to_commander ModuleName [options] \n");
         print("Example: ./vendor/bin/m-commander MyModule -h \n\n");
         
-        print("NOTICE! \n");
+        $this->yellowOutput("NOTICE! \n");
         print("Each module might have different options so typing: \n");
-        print("./path_to_commander MyModule -h \nmight give you different output \n");
-        print("than: \n ./path_to_commander MyModule2 -h \n");
-        print("Typing -h without module name will display you this message. \n");
+        $this->yellowOutput("./path_to_commander MyModule -h \nmight give you different output than \n");
+        $this->yellowOutput("./path_to_commander MyModule2 -h \n");
+        print("Typing -h without module name will display this message. \n");
         
     }
     
@@ -202,6 +202,19 @@ class Cli {
             throw new \RuntimeException("Module '{$module}' not found", CliCodes::MOD_NOT_FOUND);
 
         }
+        
+    }
+    
+    /**
+     * Colour output for help message
+     * 
+     * @param string $string
+     * @return void
+     */
+    private function yellowOutput($string)
+    {
+        
+        CliColors::render($string, CliColors::BG_YELLOW);
         
     }
     
