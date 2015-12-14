@@ -39,5 +39,9 @@ try {
     
     Cli::renderException($e);
   
-} 
+} finally {
+
+    $cli->displayMessage();
+    
+}
 ?>
