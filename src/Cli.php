@@ -4,7 +4,6 @@
  * Command line parser and execute automation code
  * 
  * This class take module name as an argument and try to execute it if module class found.
- * Each module class need to be located in CLIModule/Controller
  * Each module class need extends AbstractCliModule() and implement execute() method
  * 
  * Each module might have different options so typing 
@@ -14,6 +13,8 @@
  * Typing -h without module name will give you this message.
  * 
  * Module name is case sensitive so myModule is not the same as MyModule
+ * 
+ * See in to ../examples folder so you will find some interesting solutions
  * 
  * @author Wojciech Brozyna <wojciech.brozyna@gmail.com>
  */
@@ -130,62 +131,32 @@ class Cli {
     }
     
     /**
-     * Filter internal options
-     */
-    private function filter()
-    {
-        
-        foreach($this->argsTmp as $key => $value) {
-            
-            // skip all internal options like -v or --help
-            // because we want to figure out later, that module name has been passed through
-            if(strpos($value, '-') !== false) {
-                
-                unset($this->argsTmp[$key]);
-                
-            }
-            
-            if(strpos($value, '--') !== false) {
-                
-                unset($this->argsTmp[$key]);
-                
-            }
-            
-        }
-        
-    }
-    
-    /**
-     * Check if module has been provided
-     * 
-     * @throws \RuntimeException
-     */
-    private function isModuleProvided()
-    {
-        
-        // we removed internal option so ...
-        // check if module name is provided as argument
-        if(isset($this->argsTmp[1]) === false ) {
-            
-            throw new \RuntimeException('Module name not provided', CliCodes::MOD_ERR);
-            
-        }
-        
-    }
- 
-    /**
      * Execute command from Cli
      * 
      * @return void
      */
     private function executeCommand()
     {
-        
-        $this->filter();
-        
+                
         $this->isModuleProvided();
        
         $this->executeModule();
+        
+    }
+    
+    /**
+     * Check if module name has been provided
+     * 
+     * @throws \RuntimeException
+     */
+    private function isModuleProvided()
+    {
+        
+        if(isset($this->argsTmp[1]) === false ) {
+            
+            throw new \RuntimeException('Module name not provided', CliCodes::MOD_ERR);
+            
+        }
         
     }
     
@@ -202,7 +173,7 @@ class Cli {
         
         if(class_exists($module) === true) {
 
-            // pass original vars in to module construct
+            // pass original vars in to module constructor
             $obj = new $module($this->argc, $this->argv);
             
             // execute() function is in AbstractCliModule() class

@@ -2,6 +2,8 @@
 
 /**
  * Abstract Cli Module
+ * Extend this class to create your own module
+ * See in to ../examples folder so you will find some interesting solutions
  *
  * @author Wojciech Brozyna <wojciech.brozyna@gmail.com>
  */
@@ -213,7 +215,7 @@ abstract class AbstractCliModule {
                     if(file_put_contents($this->writeOutputFile, '') === false) {
                 
                         // looks like we can't create the file
-                        throw new \RuntimeException('File is not accesible by script. Check permissions', CliCodes::OPT_FILE_PER_ERR);
+                        throw new \RuntimeException('File is not accesible by script. Check filename and permissions', CliCodes::OPT_FILE_PER_ERR);
 
                     }
                     
@@ -247,7 +249,7 @@ abstract class AbstractCliModule {
         
         $this->defaultOptions[] = array('options' => array('-w', '--write-output'), 
                                         'callback' => 'writeOutput', 
-                                        'description' => 'Write output in to file. Eg "-w /home/user/test.log"');
+                                        'description' => 'Write output in to file. Eg "./m-commander myNamespace\\\MyModule -w /home/user/test.log"');
         
     }
     
