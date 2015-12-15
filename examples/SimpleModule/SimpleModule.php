@@ -10,7 +10,7 @@ namespace examples\SimpleModule;
 
 use mcommander\AbstractCliModule;
 
-class CliTest extends AbstractCliModule {
+class SimpleModule extends AbstractCliModule {
     
     /**
      * This is mandatory function which needs extends AbstractioCliModule
@@ -20,6 +20,7 @@ class CliTest extends AbstractCliModule {
         
         // PHP_EOL doest the same thing as "\n"
         
+        //standard output, nothing special
         $this->output("Hello World!" . PHP_EOL);
         
         $this->successOutput('Hurra! This is my first CLI module' . PHP_EOL);
