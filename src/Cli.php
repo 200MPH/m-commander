@@ -165,7 +165,7 @@ class Cli {
         
         // we removed internal option so ...
         // check if module name is provided as argument
-        if(count($this->argsTmp) < 1 ) {
+        if(isset($this->argsTmp[1]) === false ) {
             
             throw new \RuntimeException('Module name not provided', CliCodes::MOD_ERR);
             
@@ -184,16 +184,8 @@ class Cli {
         $this->filter();
         
         $this->isModuleProvided();
-        
-        // after filtering will be always as a last array element
-        $module = end($this->argsTmp);
-        
-        // try to execute module if provided
-        if($module !== false) {
-            
-            $this->executeModule();
-            
-        }
+       
+        $this->executeModule();
         
     }
     
@@ -206,7 +198,7 @@ class Cli {
     {
         
         // after filtering will be always as a last array element
-        $module = end($this->argsTmp);
+        $module = $this->argsTmp[1];
         
         if(class_exists($module) === true) {
 

@@ -34,11 +34,9 @@ try {
 } catch (RuntimeException $re) {
 
     Cli::renderException($re);
-    $cli->displayHelp();
         
 } catch(Exception $e) {
     
     Cli::renderException($e);
-    $cli->displayHelp();
   
 }

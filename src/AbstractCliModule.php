@@ -25,18 +25,11 @@ abstract class AbstractCliModule {
     protected $args = [];
     
     /**
-     * Module options (CLI arguments)
-     * Where array key is the option and value is callable method.
-     * Callable method need to exists in CLI module.
-     * 
-     * Add new option by calling $this->addOption('name', 'callback');
+     * Default options
      * 
      * @var array
      */
-    private $defaultOptions = array('-v' => 'verbose', 
-                                    '--verbose' => 'verbose', 
-                                    '-h' => 'helpMsg', 
-                                    '--help' => 'helpMsg');
+    private $defaultOptions = [];
     
     /**
      * Verbose mode
@@ -65,7 +58,7 @@ abstract class AbstractCliModule {
         $this->argc = $cliArgsCount;
         $this->args = $cliArgs;
         
-        $this->setupInternalArgs();
+        $this->setupOptions();
                
     }
     
@@ -140,32 +133,30 @@ abstract class AbstractCliModule {
             CliColors::render($string, CliColors::FG_YELLOW, null);
             
         }
-    }
-    
-    /**
-     * Add option 
-     * Run this function in constructor only, before parent::__construct()
-     * otherwise will not work.
-     * 
-     * @param string $name Option name
-     * @param string $callback Callable function in this object
-     */
-    protected function addOption($name, $callback)
-    {
-        
-        $this->defaultOptions[$name] = $callback;
         
     }
     
     /**
-     * Show help message
+     * Show help message for module
      * 
      * @return void
      */
     protected function helpMsg()
     {
         
-        print("This module doesn't have help page \n");
+        foreach($this->defaultOptions as $array) {
+            
+            foreach($array['options'] as $option) {
+                
+                CliColors::render($option . PHP_EOL, CliColors::FG_GREEN);
+                
+            }
+            
+            print("\t\t\t");
+            
+            CliColors::render($array['description'] . PHP_EOL, CliColors::FG_YELLOW);
+            
+        }
         
         exit();
         
@@ -188,14 +179,39 @@ abstract class AbstractCliModule {
     }
     
     /**
+     * Load default options
+     * 
+     * @return void
+     */
+    protected function loadOptions()
+    {
+        
+        $this->defaultOptions[] = array('options' => array('-h', '--help'), 
+                                        'callback' => 'helpMsg', 
+                                        'description' => 'Print this ');
+        
+        $this->defaultOptions[] = array('options' => array('-v', '--verbose'), 
+                                        'callback' => 'verbose', 
+                                        'description' => 'Verbose mode');
+        
+        $this->defaultOptions[] = array('options' => array('-w', '--write-output'), 
+                                        'callback' => 'writeOutput', 
+                                        'description' => 'Write output in to file.');
+        
+    }
+    
+    
+    /**
      * Setup internal arguments options
      * Each module might have different options.
      * 
      * @return void
      */
-    private function setupInternalArgs()
+    final private function setupOptions()
     {
        
+        $this->loadOptions();
+        
         //first arg is path we don't need it here
         array_shift($this->args);
         
@@ -217,28 +233,33 @@ abstract class AbstractCliModule {
      * @param string $value Option value
      * @throw RuntimeException Invalid argument
      */
-    private function loadInternalOption($value)
+    final private function loadInternalOption($value)
     {
         
-        if(isset($this->defaultOptions[$value])) {
-                    
-            if(method_exists($this, $this->defaultOptions[$value])) {
+        foreach($this->defaultOptions as $array) {
+            
+            if(in_array($value, $array['options']) === false) {
                 
-                //execute callable method
-                $this->{$this->defaultOptions[$value]}();
-                
-            } else {
-                
-                throw new \RuntimeException("Option method doesn't exists", CliCodes::OPT_METH_ERR);
+                continue;
                 
             }
+                
+            if(method_exists($this, $array['callback'])) {
+
+                ///execute callable method
+                $this->{$array['callback']}();
+
+                return 0;
+
+            } else {
+
+                throw new \RuntimeException("Option method doesn't exists", CliCodes::OPT_METH_ERR);
+
+            }
             
-
-        } else {
-
-            throw new \RuntimeException("Invalid argument: {$value}", CliCodes::OPT_FAIL);
-
         }
+        
+        throw new \RuntimeException("Invalid argument: {$value} \nTry -h or --help to see all available options", CliCodes::OPT_FAIL);
         
     }
     
