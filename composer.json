@@ -19,7 +19,7 @@
     "autoload": {
         "psr-4": {
             "mcommander\\": "src/",
-            "examples\\": "examples/"
+            "examples\\mcommander\\": "examples/"
         }
     }
 }

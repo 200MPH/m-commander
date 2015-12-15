@@ -207,23 +207,11 @@ abstract class AbstractCliModule {
             
             if($value === '-w' || $value === '--write-output') {
                 
-                // next to argument should be file name
-                if(isset($this->args[$key+1]) === true) {
+                $this->isPathNameProvided($key);
                     
-                    $this->writeOutputFile = $this->args[$key+1];
-                    
-                    if(file_put_contents($this->writeOutputFile, '') === false) {
+                $this->isFileWritable($key);
                 
-                        // looks like we can't create the file
-                        throw new \RuntimeException('File is not accesible by script. Check filename and permissions', CliCodes::OPT_FILE_PER_ERR);
-
-                    }
-                    
-                } else {
-                    
-                    throw new \RuntimeException('You have to specify path to the file for -w/--write-output option', CliCodes::OPT_WRITE_NO_FILE);
-                    
-                }
+                break;
                 
             }
             
@@ -321,13 +309,60 @@ abstract class AbstractCliModule {
      * 
      * @param string $string
      */
-    private function saveOutput($string)
+    final private function saveOutput($string)
     {
         
         if($this->writeOutputFile !== false) {
             
             file_put_contents($this->writeOutputFile, $string, FILE_APPEND);
             
+        }
+        
+    }
+    
+    /**
+     * Check if path is provided for -w|--write-output option
+     * 
+     * @var int $optionLocation Expected -w option location in ARGS array.
+     * In another word, ARGS array key where -w|--write-output option occured
+     * 
+     * @throw RuntimeException
+     */
+    final private function isPathNameProvided($optionLocation)
+    {
+        
+        // next to argument should be file name
+        $pathLocation = $optionLocation + 1;
+       
+        if(isset( $this->args[$pathLocation] ) === false) {
+
+            throw new \RuntimeException('You have to specify path to the file for -w|--write-output option', CliCodes::OPT_WRITE_NO_FILE);
+
+        }
+        
+    }
+    
+    /**
+     * Check if file is writable
+     * 
+     * @var int $optionLocation Expected -w option location in ARGS array.
+     * In another word, ARGS array key where -w|--write-output option occured
+     * 
+     * @throw RuntimeException
+     */
+    final private function isFileWritable($optionLocation)
+    {
+        
+        // next to argument should be file name
+        $pathLocation = $optionLocation + 1;
+        
+        $this->writeOutputFile = $this->args[$pathLocation];
+
+        if(file_put_contents($this->writeOutputFile, '') === false) {
+
+            // looks like we can't create the file
+            throw new \RuntimeException('File is not writable. Check filename and permissions', CliCodes::OPT_FILE_PER_ERR);
+
         }
         
     }

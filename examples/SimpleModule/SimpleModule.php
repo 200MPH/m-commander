@@ -6,14 +6,14 @@
  * @author Wojciech Brozyna <wojciech.brozyna@gmail.com>
  */
 
-namespace examples\SimpleModule;
+namespace examples\mcommander\SimpleModule;
 
 use mcommander\AbstractCliModule;
 
 class SimpleModule extends AbstractCliModule {
     
     /**
-     * This is mandatory function which needs extends AbstractioCliModule
+     * This is mandatory function which is required by abstraction
      */
     public function execute()
     {

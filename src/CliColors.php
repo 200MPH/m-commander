@@ -43,6 +43,8 @@ class CliColors {
  
 	/**
          * 
+         * Render coloured string
+         * 
          * @param string $string String to be colored
          * @param const $foreground_color [optional] Foregrounf color code
          * @param const $background_color [optional] Background color code
