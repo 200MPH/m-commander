@@ -39,7 +39,7 @@ abstract class AbstractCliModule {
      * 
      * @var bool
      */
-    private $verbose = false;
+    protected $verbose = false;
     
     /**
      * Write output file
@@ -54,7 +54,7 @@ abstract class AbstractCliModule {
      * 
      * @return void
      */
-    abstract public function execute(); 
+    abstract protected function execute(); 
     
     /**
      * 
@@ -241,6 +241,21 @@ abstract class AbstractCliModule {
         
     }
     
+    /**
+     * Save output in to file
+     * 
+     * @param string $string
+     */
+    final protected function saveOutput($string)
+    {
+        
+        if($this->writeOutputFile !== false) {
+            
+            file_put_contents($this->writeOutputFile, $string, FILE_APPEND);
+            
+        }
+        
+    }
     
     /**
      * Setup internal arguments options
@@ -301,22 +316,6 @@ abstract class AbstractCliModule {
         }
         
         throw new \RuntimeException("Invalid argument: {$value} \nTry -h or --help to see all available options", CliCodes::OPT_FAIL);
-        
-    }
-    
-    /**
-     * Save output in to file
-     * 
-     * @param string $string
-     */
-    final private function saveOutput($string)
-    {
-        
-        if($this->writeOutputFile !== false) {
-            
-            file_put_contents($this->writeOutputFile, $string, FILE_APPEND);
-            
-        }
         
     }
     

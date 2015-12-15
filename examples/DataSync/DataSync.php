@@ -41,10 +41,10 @@ class DataSync extends AbstractCliModule {
         
         foreach($this->synchronizer->getData() as $id) {
             
-            // just to see output in slow motion
+            // just to see output in slow motion :)
             sleep(1);
             
-            $this->output('Synchronize ID' . $id . '...');
+            $this->output('Synchronize ID ' . $id . '...');
             
             if(in_array($id, $comapreWithMe) === true) {
                 
@@ -52,7 +52,7 @@ class DataSync extends AbstractCliModule {
                 
             } else {
                 
-                $this->warningOutput('FAIL' . PHP_EOL);
+                $this->errorOutput('FAIL' . PHP_EOL);
                 
             }
             

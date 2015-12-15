@@ -19,7 +19,7 @@ class CustomOption extends AbstractCliModule {
      */
     private $testOption;
     
-    protected function execute() {
+    public function execute() {
         
         $this->output('Execute this module with and without -s|--set-option-value parameter' . PHP_EOL);
         
@@ -49,7 +49,7 @@ class CustomOption extends AbstractCliModule {
     protected function setOption()
     {
         
-        $this->testOption = 'I used my variable';
+        $this->testOption = 'I used my option' . PHP_EOL;
         
     }
     

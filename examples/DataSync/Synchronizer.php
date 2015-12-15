@@ -17,7 +17,7 @@ class Synchronizer {
     public function getData()
     {
         
-        $array = array('123', '456', '798');
+        $array = array('123', '456', '798', '111');
         
         return $array;
         
@@ -31,7 +31,7 @@ class Synchronizer {
     public function getDataToCompare()
     {
         
-        $array = array('123', '456', '999');
+        $array = array('123', '456', '999', '111');
         
         return $array;
         
