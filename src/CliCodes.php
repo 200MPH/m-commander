@@ -42,4 +42,15 @@ class CliCodes {
      */
     const OPT_METH_ERR = 9954;
     
+    /**
+     * File not specyfied for -w or --write-output option
+     */
+    const OPT_WRITE_NO_FILE = 9955;
+    
+    /**
+     * Fileis not accessible by script
+     * Check permissions
+     */
+    const OPT_FILE_PER_ERR = 9956;
+    
 }

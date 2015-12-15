@@ -29,7 +29,7 @@ abstract class AbstractCliModule {
      * 
      * @var array
      */
-    private $defaultOptions = [];
+    protected $defaultOptions = [];
     
     /**
      * Verbose mode
@@ -38,6 +38,13 @@ abstract class AbstractCliModule {
      * @var bool
      */
     private $verbose = false;
+    
+    /**
+     * Write output file
+     * 
+     * @var bool|string
+     */
+    private $writeOutputFile = false;
     
     /**
      * Execute command for module
@@ -77,6 +84,8 @@ abstract class AbstractCliModule {
             
         }
         
+        $this->saveOutput($string);
+        
     }
     
     /**
@@ -95,6 +104,8 @@ abstract class AbstractCliModule {
             CliColors::render($string, CliColors::FG_GREEN, null);
         
         }
+        
+        $this->saveOutput($string);
         
     }
     
@@ -115,6 +126,8 @@ abstract class AbstractCliModule {
             
         }
         
+        $this->saveOutput($string);
+        
     }
     
     /**
@@ -133,6 +146,8 @@ abstract class AbstractCliModule {
             CliColors::render($string, CliColors::FG_YELLOW, null);
             
         }
+        
+        $this->saveOutput($string);
         
     }
     
@@ -179,6 +194,42 @@ abstract class AbstractCliModule {
     }
     
     /**
+     * Write output into file
+     * 
+     * @return void
+     */
+    protected function writeOutput()
+    {
+        
+        foreach($this->args as $key => $value) {
+            
+            if($value === '-w' || $value === '--write-output') {
+                
+                // next to argument should be file name
+                if(isset($this->args[$key+1]) === true) {
+                    
+                    $this->writeOutputFile = $this->args[$key+1];
+                    
+                    if(file_put_contents($this->writeOutputFile, '') === false) {
+                
+                        // looks like we can't create the file
+                        throw new \RuntimeException('File is not accesible by script. Check permissions', CliCodes::OPT_FILE_PER_ERR);
+
+                    }
+                    
+                } else {
+                    
+                    throw new \RuntimeException('You have to specify path to the file for -w/--write-output option', CliCodes::OPT_WRITE_NO_FILE);
+                    
+                }
+                
+            }
+            
+        }
+        
+    }
+    
+    /**
      * Load default options
      * 
      * @return void
@@ -188,7 +239,7 @@ abstract class AbstractCliModule {
         
         $this->defaultOptions[] = array('options' => array('-h', '--help'), 
                                         'callback' => 'helpMsg', 
-                                        'description' => 'Print this ');
+                                        'description' => 'Display this page');
         
         $this->defaultOptions[] = array('options' => array('-v', '--verbose'), 
                                         'callback' => 'verbose', 
@@ -196,7 +247,7 @@ abstract class AbstractCliModule {
         
         $this->defaultOptions[] = array('options' => array('-w', '--write-output'), 
                                         'callback' => 'writeOutput', 
-                                        'description' => 'Write output in to file.');
+                                        'description' => 'Write output in to file. Eg "-w /home/user/test.log"');
         
     }
     
@@ -260,6 +311,22 @@ abstract class AbstractCliModule {
         }
         
         throw new \RuntimeException("Invalid argument: {$value} \nTry -h or --help to see all available options", CliCodes::OPT_FAIL);
+        
+    }
+    
+    /**
+     * Save output in to file
+     * 
+     * @param string $string
+     */
+    private function saveOutput($string)
+    {
+        
+        if($this->writeOutputFile !== false) {
+            
+            file_put_contents($this->writeOutputFile, $string, FILE_APPEND);
+            
+        }
         
     }
     
