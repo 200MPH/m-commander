@@ -3,6 +3,7 @@
 namespace test;
 
 use mcommander\Cli;
+use mcommander\CliCodes;
 
 class TestCli extends \PHPUnit_Framework_TestCase {
     
@@ -53,11 +54,26 @@ class TestCli extends \PHPUnit_Framework_TestCase {
         $this->assertTrue($foo);
         
     }
-        
-    public function testIsHelpNeededTrue()
+    
+    public function helpArgProvider()
     {
         
-        $this->cli->despatch(2, array('this/path/is/arg/as/wel', '-h'));
+        return array(
+          array('-h'),
+          array('--help')
+        );
+        
+    }
+    
+    /**
+     * @dataProvider helpArgProvider
+     * 
+     * @param string $arg
+     */
+    public function testIsHelpNeeded_True($arg)
+    {
+        
+        $this->cli->despatch(2, array('this/path/is/arg/as/wel', $arg));
         
         $status = $this->invokeMethod($this->cli, 'isHelpNeeded');
 
@@ -65,27 +81,21 @@ class TestCli extends \PHPUnit_Framework_TestCase {
         
     }
     
-    public function testIsHelpNeededArg2True()
-    {
-        
-        $this->cli->despatch(2, array('this/path/is/arg/as/wel', '--help'));
-        
-        $status = $this->invokeMethod($this->cli, 'isHelpNeeded');
-
-        $this->assertTrue($status);
-        
-    }
-    
-    public function testIsHelpNeededWhenHProvidedAndMoreOtherArgsFalse()
+    /**
+     * @dataProvider helpArgProvider
+     * 
+     * @param string $arg
+     */
+    public function testIsHelpNeededWhenHProvidedAndMoreOtherArgs_False($arg)
     {
         
         $this->setExpectedException('RuntimeException');
         
-        $this->cli->despatch(3, array('this/path/is/arg/as/wel', '-h', 'test\ModuleTest', 'else'));
+        $this->cli->despatch(3, array('this/path/is/arg/as/wel', $arg, 'test\ModuleTest', 'else'));
         
     }
     
-    public function testIsHelpNeededWhenOtherArgsProvidedFalse()
+    public function testIsHelpNeededWhenOtherArgsProvided_False()
     {
         
         $this->cli->despatch(3, array('this/path/is/arg/as/wel', 'test\ModuleTest', 'else'));
@@ -96,7 +106,10 @@ class TestCli extends \PHPUnit_Framework_TestCase {
         
     }
     
-    public function testIsModuleProvidedTrue()
+    /**
+     * Module name provided
+     */
+    public function testIsModuleProvided_True()
     {
         
         $this->cli->despatch(3, array('this/path/is/arg/as/wel', 'test\ModuleTest'));
@@ -107,12 +120,100 @@ class TestCli extends \PHPUnit_Framework_TestCase {
         
     }
     
-    public function testIsModuleProvidedFalse()
+    /**
+     * Module name is not provided
+     */
+    public function testIsModuleProvided_False()
     {
         
-        $this->setExpectedException('RuntimeException');
+        $this->setExpectedException('RuntimeException', null, CliCodes::MOD_ERR);
         
         $this->cli->despatch(3, array());
+        
+    }
+    
+    /**
+     * Assume that user want to execute it module without extra options
+     * Just simple execute it
+     */
+    public function testLoadInternalOption_Empty()
+    {
+        
+        $status = $this->cli->despatch(3, array('this/path/is/arg/as/wel', 'test\ModuleTest'));
+        
+        $this->assertNull($status);
+        
+    }
+    
+    public function optionsProvider()
+    {
+        
+        return array(
+          array('-t'),
+          array('--test')
+        );
+        
+    }
+    
+    /**
+     * @dataProvider optionsProvider
+     * Check that options is correctly loaded
+     * 
+     * @param string $option
+     */
+    public function testLoadInternalOption_IsLoadedOk($option)
+    {
+        
+        $moduleTest = new ModuleTest(3, array('this/path/is/arg/as/wel', 'test\ModuleTest', $option));
+        
+        $this->assertTrue($moduleTest->test);
+        
+    }
+    
+    public function testLoadInternalOption_IsArgumentValid()
+    {
+        
+        $this->setExpectedException('RuntimeException', null, CliCodes::OPT_FAIL);
+        
+        $this->cli->despatch(3, array('this/path/is/arg/as/wel', 'test\ModuleTest', '-o'));
+        
+    }
+    
+    public function testLoadInternalOption_ArgumentMethodNotExists()
+    {
+        
+        $this->setExpectedException('RuntimeException', null, CliCodes::OPT_METH_ERR);
+        
+        $this->cli->despatch(3, array('this/path/is/arg/as/wel', 'test\ModuleTest', '-n'));
+        
+    }
+    
+    public function testIsFilePathProvidedForWriteOutputOption_True()
+    {
+        
+        $status = $this->cli->despatch(3, array('this/path/is/arg/as/wel', 'test\ModuleTest', '-w', '/tmp/abc.log'));
+        
+        unlink('/tmp/abc.log');
+        
+        $this->assertNull($status);
+        
+    }
+    
+    public function testIsFilePathProvidedForWriteOutputOption_False()
+    {
+        
+        $this->setExpectedException('RuntimeException', null, CliCodes::OPT_WRITE_NO_FILE);
+        
+        $this->cli->despatch(3, array('this/path/is/arg/as/wel', 'test\ModuleTest', '--write-output'));
+        
+    }
+    
+    public function testIsFileWritableForOption_False() 
+    {
+        
+        $this->setExpectedException('RuntimeException', null, CliCodes::OPT_FILE_PER_ERR);
+        
+        $this->cli->despatch(3, array('this/path/is/arg/as/wel', 'test\ModuleTest', '-w', '/no/exists/abc.log'));
         
     }
     
