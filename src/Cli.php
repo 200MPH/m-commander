@@ -24,6 +24,11 @@ namespace mcommander;
 class Cli {
     
     /**
+     * Disable it for testing
+     */
+    public $testing = false;
+    
+    /**
      * Arguments copy
      * @var array
      */
@@ -91,6 +96,12 @@ class Cli {
     public function displayHelp()
     {
         
+        if($this->testing === true) {
+            
+            return null;
+            
+        }
+        
         print("\nUsage: ./path_to_commander ModuleName [options] \n");
         print("Example: ./vendor/bin/m-commander MyModule -h \n\n");
         
@@ -157,6 +168,8 @@ class Cli {
             throw new \RuntimeException('Module name not provided', CliCodes::MOD_ERR);
             
         }
+        
+        return true;
         
     }
     
