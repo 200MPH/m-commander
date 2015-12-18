@@ -3,6 +3,7 @@
     "bin": ["bin/m-commander"],
     "type": "library",
     "description": "Easy tool for executing your own module via command line",
+    "keywords": ["cli","command line","exec"],
     "homepage": "https://github.com/200MPH/m-commander",
     "authors": [
         {
