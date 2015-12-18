@@ -357,7 +357,7 @@ abstract class AbstractCliModule {
         
         $this->writeOutputFile = $this->args[$pathLocation];
 
-        if(file_put_contents($this->writeOutputFile, '') === false) {
+        if(@file_put_contents($this->writeOutputFile, '') === false) {
 
             // looks like we can't create the file
             throw new \RuntimeException('File is not writable. Check filename and permissions', CliCodes::OPT_FILE_PER_ERR);
