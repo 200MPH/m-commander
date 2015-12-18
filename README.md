@@ -1,13 +1,13 @@
 # m-commander
 Easy tool for executing your own module via command line
 
-1. Install via Composer (best option, however you can use it without it)
+1.Install via Composer (best option, however you can use it without it)
 
 ```
 "200mph/m-commander": "1.*"
 ```
 
-2. Create your command line module class and extend AbstractCliModule() from m-commander vendor
+2.Create your command line module class and extend AbstractCliModule() from m-commander vendor
 
 ```
 namespace cli\MyTest;
@@ -31,7 +31,7 @@ class TestMe() extends AbstractCliModule
 }
 ```
 
-3. Run your module
+3.Run your module
 
 ```
 ./vendor/bin/m-commander cli\\MyTest\\TestMe -v
