@@ -4,7 +4,6 @@
  * Command line parser and execute automation code
  * 
  * This class take module name as an argument and try to execute it if module class found.
- * Each module class need to be located in CLIModule/Controller
  * Each module class need extends AbstractCliModule() and implement execute() method
  * 
  * Each module might have different options so typing 
@@ -15,6 +14,8 @@
  * 
  * Module name is case sensitive so myModule is not the same as MyModule
  * 
+ * See in to ../examples folder so you will find some interesting solutions
+ * 
  * @author Wojciech Brozyna <wojciech.brozyna@gmail.com>
  */
 
@@ -23,10 +24,29 @@ namespace mcommander;
 class Cli {
     
     /**
+     * Disable it for testing
+     */
+    public $testing = false;
+    
+    /**
      * Arguments copy
      * @var array
      */
-    private $argsTmp;
+    private $argsTmp = [];
+    
+    /**
+     * ARGC
+     * 
+     * @var int
+     */
+    private $argc;
+    
+    /**
+     * ARGV
+     * 
+     * @var array
+     */
+    private $argv = [];
     
     /**
      * Render exception
@@ -53,6 +73,8 @@ class Cli {
     {
         
         $this->argsTmp = $argv;
+        $this->argc = $argc;
+        $this->argv = $argv;
         
         if($this->isHelpNeeded() === true) {
             
@@ -71,17 +93,25 @@ class Cli {
      * 
      * @return void
      */
-    public function displayMessage()
+    public function displayHelp()
     {
+  
+        if($this->testing === true) {
+            
+            return null;
+            
+        }
         
-        print("\n Usage: ./path_to_commander ModuleName [options] \n");
+        print("\nUsage: ./path_to_commander ModuleName [options] \n");
         print("Example: ./vendor/bin/m-commander MyModule -h \n\n");
         
-        print("NOTICE! \n"); 
-        print("Each module might have different options so typing: \n");
-        print("php cli.php module1 -h might give you different output \n");
-        print("than: \n php cli.php module2 -h \n");
-        print("Typing -h without module name will display you this message. \n");
+        $this->yellowOutput("NOTICE! \n");
+        print("Each module might have different options \n");
+        print("So typing: \n");
+        $this->yellowOutput("./path_to_commander MyModule -h \n");
+        print("might give you different output than \n");
+        $this->yellowOutput("./path_to_commander MyModule2 -h \n");
+        print("Typing -h without module name will display this message. \n");
         
     }
     
@@ -93,14 +123,18 @@ class Cli {
     private function isHelpNeeded()
     {
         
-        foreach($this->argsTmp as $key => $value) {
+        if(count($this->argsTmp) > 2) {
             
-            if(strpos($value, '-h') !== false || strpos($value, '--help') !== false) {
-                
-                return true;
-                
-            }
+            // if there is more arguments
+            // it seems like user trying to display help for module, not for this page
+            return false;
             
+        }
+        
+        if($this->argsTmp[1] === '-h' || $this->argsTmp[1] === '--help') {
+                
+            return true;
+                
         }
         
         return false;
@@ -108,91 +142,52 @@ class Cli {
     }
     
     /**
-     * Filter internal options
-     */
-    private function filter()
-    {
-        
-        foreach($this->argsTmp as $key => $value) {
-            
-            // skip all internal options like -v or --help
-            // because we want to figure out later, that module name has been passed through
-            if(strpos($value, '-') !== false) {
-                
-                unset($this->argsTmp[$key]);
-                
-            }
-            
-            if(strpos($value, '--') !== false) {
-                
-                unset($this->argsTmp[$key]);
-                
-            }
-            
-        }
-        
-    }
-    
-    /**
-     * Check if module has been provided
-     * 
-     * @throws \RuntimeException
-     */
-    private function isModuleProvided()
-    {
-        
-        // we removed internal option so ...
-        // check if module name is provided as argument
-        if(count($this->argsTmp) < 1 ) {
-            
-            throw new \RuntimeException('Module name not provided', CliCodes::MOD_ERR);
-            
-        }
-        
-    }
- 
-    /**
      * Execute command from Cli
      * 
      * @return void
      */
     private function executeCommand()
     {
-        
-        $this->filter();
-        
+                
         $this->isModuleProvided();
+       
+        $this->executeModule();
         
-        // after filtering will be always as a last array element
-        $module = end($this->argsTmp);
+    }
+    
+    /**
+     * Check if module name has been provided
+     * 
+     * @throws \RuntimeException
+     */
+    private function isModuleProvided()
+    {
         
-        // try to execute module if provided
-        if($module !== false) {
+        if(isset($this->argsTmp[1]) === false ) {
             
-            $this->executeModule($argc, $argv);
+            throw new \RuntimeException('Module name not provided', CliCodes::MOD_ERR);
             
         }
+        
+        return true;
         
     }
     
     /**
      * Execute module 
      * 
-     * @param int $argc Args count
-     * @param array $argv Argument list
-     * 
      * @throw RuntimeException
      */
-    private function executeModule($argc, $argv)
+    private function executeModule()
     {
         
         // after filtering will be always as a last array element
-        $module = end($this->argsTmp);
+        $module = $this->argsTmp[1];
         
         if(class_exists($module) === true) {
 
-            // pass original vars in to module construct
-            $obj = new $module($argc, $argv);
+            // pass original vars in to module constructor
+            $obj = new $module($this->argc, $this->argv);
             
             // execute() function is in AbstractCliModule() class
             call_user_func(array($obj, 'execute'));
@@ -202,6 +197,19 @@ class Cli {
             throw new \RuntimeException("Module '{$module}' not found", CliCodes::MOD_NOT_FOUND);
 
         }
+        
+    }
+    
+    /**
+     * Colour output for help message
+     * 
+     * @param string $string
+     * @return void
+     */
+    private function yellowOutput($string)
+    {
+        
+        CliColors::render($string, CliColors::FG_YELLOW);
         
     }
     

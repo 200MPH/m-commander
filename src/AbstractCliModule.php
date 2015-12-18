@@ -2,6 +2,8 @@
 
 /**
  * Abstract Cli Module
+ * Extend this class to create your own module
+ * See in to ../examples folder so you will find some interesting solutions
  *
  * @author Wojciech Brozyna <wojciech.brozyna@gmail.com>
  */
@@ -22,21 +24,14 @@ abstract class AbstractCliModule {
      * 
      * @var array
      */
-    protected $args;
+    protected $args = [];
     
     /**
-     * Internal arguments for module
-     * Where array key is the option and value is callable method.
-     * Callable method need to exists in CLI module.
-     * 
-     * Add new option by calling $this->addOption('name', 'callback');
+     * Default options
      * 
      * @var array
      */
-    private $internalArgs = array('-v' => 'verbose', 
-                                  '--verbose' => 'verbose', 
-                                  '-h' => 'helpMsg', 
-                                  '--help' => 'helpMsg');
+    protected $defaultOptions = [];
     
     /**
      * Verbose mode
@@ -44,7 +39,14 @@ abstract class AbstractCliModule {
      * 
      * @var bool
      */
-    private $verbose = false;
+    protected $verbose = false;
+    
+    /**
+     * Write output file
+     * 
+     * @var bool|string
+     */
+    private $writeOutputFile = false;
     
     /**
      * Execute command for module
@@ -52,7 +54,7 @@ abstract class AbstractCliModule {
      * 
      * @return void
      */
-    abstract public function execute(); 
+    abstract protected function execute(); 
     
     /**
      * 
@@ -65,7 +67,7 @@ abstract class AbstractCliModule {
         $this->argc = $cliArgsCount;
         $this->args = $cliArgs;
         
-        $this->setupInternalArgs();
+        $this->setupOptions();
                
     }
     
@@ -83,6 +85,8 @@ abstract class AbstractCliModule {
             print($string);
             
         }
+        
+        $this->saveOutput($string);
         
     }
     
@@ -103,6 +107,8 @@ abstract class AbstractCliModule {
         
         }
         
+        $this->saveOutput($string);
+        
     }
     
     /**
@@ -122,6 +128,8 @@ abstract class AbstractCliModule {
             
         }
         
+        $this->saveOutput($string);
+        
     }
     
     /**
@@ -140,32 +148,32 @@ abstract class AbstractCliModule {
             CliColors::render($string, CliColors::FG_YELLOW, null);
             
         }
-    }
-    
-    /**
-     * Add option 
-     * Run this function in constructor only, before parent::__construct()
-     * otherwise will not work.
-     * 
-     * @param string $name Option name
-     * @param string $callback Callable function in this object
-     */
-    protected function addOption($name, $callback)
-    {
         
-        $this->internalArgs[$name] = $callback;
+        $this->saveOutput($string);
         
     }
     
     /**
-     * Show help message
+     * Show help message for module
      * 
      * @return void
      */
     protected function helpMsg()
     {
         
-        print("This module doesn't have help page \n");
+        foreach($this->defaultOptions as $array) {
+            
+            foreach($array['options'] as $option) {
+                
+                CliColors::render($option . PHP_EOL, CliColors::FG_GREEN);
+                
+            }
+            
+            print("\t\t\t");
+            
+            CliColors::render($array['description'] . PHP_EOL, CliColors::FG_YELLOW);
+            
+        }
         
         exit();
         
@@ -188,13 +196,77 @@ abstract class AbstractCliModule {
     }
     
     /**
+     * Write output into file
+     * 
+     * @return void
+     */
+    protected function writeOutput()
+    {
+        
+        foreach($this->args as $key => $value) {
+            
+            if($value === '-w' || $value === '--write-output') {
+                
+                $this->isPathNameProvided($key);
+                    
+                $this->isFileWritable($key);
+                
+                break;
+                
+            }
+            
+        }
+        
+    }
+    
+    /**
+     * Load default options
+     * 
+     * @return void
+     */
+    protected function loadOptions()
+    {
+        
+        $this->defaultOptions[] = array('options' => array('-h', '--help'), 
+                                        'callback' => 'helpMsg', 
+                                        'description' => 'Display this page');
+        
+        $this->defaultOptions[] = array('options' => array('-v', '--verbose'), 
+                                        'callback' => 'verbose', 
+                                        'description' => 'Verbose mode');
+        
+        $this->defaultOptions[] = array('options' => array('-w', '--write-output'), 
+                                        'callback' => 'writeOutput', 
+                                        'description' => 'Write output in to file. Eg "./m-commander myNamespace\\\MyModule -w /home/user/test.log"');
+        
+    }
+    
+    /**
+     * Save output in to file
+     * 
+     * @param string $string
+     */
+    final protected function saveOutput($string)
+    {
+        
+        if($this->writeOutputFile !== false) {
+            
+            file_put_contents($this->writeOutputFile, $string, FILE_APPEND);
+            
+        }
+        
+    }
+    
+    /**
      * Setup internal arguments options
      * Each module might have different options.
      * 
      * @return void
      */
-    private function setupInternalArgs()
+    final private function setupOptions()
     {
+       
+        $this->loadOptions();
         
         //first arg is path we don't need it here
         array_shift($this->args);
@@ -217,26 +289,78 @@ abstract class AbstractCliModule {
      * @param string $value Option value
      * @throw RuntimeException Invalid argument
      */
-    private function loadInternalOption($value)
+    final private function loadInternalOption($value)
     {
         
-        if(isset($this->internalArgs[$value])) {
-                    
-            if(method_exists($this, $this->internalArgs[$value])) {
+        foreach($this->defaultOptions as $array) {
+            
+            if(in_array($value, $array['options']) === false) {
                 
-                //execute callable method
-                $this->{$this->internalArgs[$value]}();
-                
-            } else {
-                
-                throw new \RuntimeException("Option method doesn't exists", CliCodes::OPT_METH_ERR);
+                continue;
                 
             }
+                
+            if(method_exists($this, $array['callback'])) {
+
+                ///execute callable method
+                $this->{$array['callback']}();
+
+                return 0;
+
+            } else {
+
+                throw new \RuntimeException("Option method doesn't exists", CliCodes::OPT_METH_ERR);
+
+            }
             
+        }
+        
+        throw new \RuntimeException("Invalid argument: {$value} \nTry -h or --help to see all available options", CliCodes::OPT_FAIL);
+        
+    }
+    
+    /**
+     * Check if path is provided for -w|--write-output option
+     * 
+     * @var int $optionLocation Expected -w option location in ARGS array.
+     * In another word, ARGS array key where -w|--write-output option occured
+     * 
+     * @throw RuntimeException
+     */
+    final private function isPathNameProvided($optionLocation)
+    {
+        
+        // next to argument should be file name
+        $pathLocation = $optionLocation + 1;
+       
+        if(isset( $this->args[$pathLocation] ) === false) {
 
-        } else {
+            throw new \RuntimeException('You have to specify path to the file for -w|--write-output option', CliCodes::OPT_WRITE_NO_FILE);
 
-            throw new \RuntimeException("Invalid argument: {$value}", CliCodes::OPT_FAIL);
+        }
+        
+    }
+    
+    /**
+     * Check if file is writable
+     * 
+     * @var int $optionLocation Expected -w option location in ARGS array.
+     * In another word, ARGS array key where -w|--write-output option occured
+     * 
+     * @throw RuntimeException
+     */
+    final private function isFileWritable($optionLocation)
+    {
+        
+        // next to argument should be file name
+        $pathLocation = $optionLocation + 1;
+        
+        $this->writeOutputFile = $this->args[$pathLocation];
+
+        if(@file_put_contents($this->writeOutputFile, '') === false) {
+
+            // looks like we can't create the file
+            throw new \RuntimeException('File is not writable. Check filename and permissions', CliCodes::OPT_FILE_PER_ERR);
 
         }
         

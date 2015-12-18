@@ -18,12 +18,11 @@ use mcommander\Cli;
 
 /* 
  * Autoloading
- * If you installed this library via composer, the best option is keep it as is
+ * If you installed this library via composer, the best option is below code as is
  * If you have your own autoloader include it here
  * Or include default-autoload.php
  */
-require_once 'composer-autoload.php';
-
+require_once __DIR__ . '/../composer-autoload.php';
 
 try {
     
@@ -39,9 +38,4 @@ try {
     
     Cli::renderException($e);
   
-} finally {
-
-    $cli->displayMessage();
-    
 }
-?>
