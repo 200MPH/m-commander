@@ -103,15 +103,15 @@ class Cli {
             
         }
         
-        print("\nUsage: ./vendor/bin/m-commander namespace\\my\\module [options] \n");
-        print("Example: ./vendor/bin/m-commander namespace\\my\\module -h \n\n");
+        print("\nUsage: ./vendor/bin/m-commander namespace\\\my\\\module [options] \n");
+        print("Example: ./vendor/bin/m-commander namespace\\\my\\\module -h \n\n");
         
         $this->yellowOutput("NOTICE! \n");
         print("Each module might have different options \n");
         print("So typing: \n");
-        $this->yellowOutput("./vendor/bin/m-commander namespace\\my\\module -h \n");
+        $this->yellowOutput("./vendor/bin/m-commander namespace\\\my\\\module -h \n");
         print("might give you different output than \n");
-        $this->yellowOutput("./vendor/bin/m-commander namespace\\my\\module -h \n");
+        $this->yellowOutput("./vendor/bin/m-commander namespace\\\my\\\module -h \n");
         print("Typing -h without module name will display this message. \n");
         
     }
