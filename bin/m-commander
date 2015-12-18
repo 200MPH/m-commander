@@ -1,17 +1,17 @@
 #!/usr/bin/php
 <?php
-/*
+
+/** 
+ * This script allow only local users to execute modules via command line
  * 
- * This script allow only local users to execute modules from CLI Module
- * folder only
- * 
- * CLI Module folder might contains automations scripts (eg. data synchronization)
- * 
- * Example: php cli.php module_name
- * Example: php cli.php module_name -h
- * Example: php cli.php module_name -v
+ * @example ./vendor/bin/m-commander -h This will display m-commander help page
+ * @example ./vendor/bin/m-commander namespace\\to\\my\\module 
+ * @example ./vendor/bin/m-commander namespace\\to\\my\\module -h This will display particular module help page
+ * @example ./vendor/bin/m-commander namespace\\to\\my\\module -v Execute module with verbose mode
  * 
  * @author Wojciech Brozyna <wojciech.brozyna@gmail.com>
+ * @license https://github.com/200MPH/m-commander/blob/master/LICENSE
+ * @link https://github.com/200MPH/m-commander/
  */
 
 use mcommander\Cli;
@@ -20,7 +20,6 @@ use mcommander\Cli;
  * Autoloading
  * If you installed this library via composer, the best option is below code as is
  * If you have your own autoloader include it here
- * Or include default-autoload.php
  */
 require_once __DIR__ . '/../composer-autoload.php';
 

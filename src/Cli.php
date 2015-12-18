@@ -1,9 +1,8 @@
 <?php
 
 /**
- * Command line parser and execute automation code
- * 
- * This class take module name as an argument and try to execute it if module class found.
+ *  
+ * This class takes module name from command line argument and try to execute it if module class found.
  * Each module class need extends AbstractCliModule() and implement execute() method
  * 
  * Each module might have different options so typing 
@@ -17,6 +16,8 @@
  * See in to ../examples folder so you will find some interesting solutions
  * 
  * @author Wojciech Brozyna <wojciech.brozyna@gmail.com>
+ * @license https://github.com/200MPH/m-commander/blob/master/LICENSE
+ * @link https://github.com/200MPH/m-commander/
  */
 
 namespace mcommander;
@@ -102,15 +103,15 @@ class Cli {
             
         }
         
-        print("\nUsage: ./path_to_commander ModuleName [options] \n");
-        print("Example: ./vendor/bin/m-commander MyModule -h \n\n");
+        print("\nUsage: ./vendor/bin/m-commander namespace\\my\\module [options] \n");
+        print("Example: ./vendor/bin/m-commander namespace\\my\\module -h \n\n");
         
         $this->yellowOutput("NOTICE! \n");
         print("Each module might have different options \n");
         print("So typing: \n");
-        $this->yellowOutput("./path_to_commander MyModule -h \n");
+        $this->yellowOutput("./vendor/bin/m-commander namespace\\my\\module -h \n");
         print("might give you different output than \n");
-        $this->yellowOutput("./path_to_commander MyModule2 -h \n");
+        $this->yellowOutput("./vendor/bin/m-commander namespace\\my\\module -h \n");
         print("Typing -h without module name will display this message. \n");
         
     }
@@ -189,7 +190,7 @@ class Cli {
             // pass original vars in to module constructor
             $obj = new $module($this->argc, $this->argv);
             
-            // execute() function is in AbstractCliModule() class
+            // execute() function is in AbstractCliModule()
             call_user_func(array($obj, 'execute'));
 
         } else {
