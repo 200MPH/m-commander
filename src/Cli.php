@@ -132,7 +132,7 @@ class Cli {
             
         }
         
-        if($this->argsTmp[1] === '-h' || $this->argsTmp[1] === '--help') {
+        if(isset($this->argsTmp[1]) && ($this->argsTmp[1] === '-h' || $this->argsTmp[1] === '--help')) {
                 
             return true;
                 
