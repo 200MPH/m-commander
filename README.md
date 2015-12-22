@@ -37,4 +37,12 @@ class TestMe() extends AbstractCliModule
 ./vendor/bin/m-commander cli\\MyTest\\TestMe -v
 ```
 
+You can also use semi quotes to avoid double back slashes notation.
+
+```
+./vendor/bin/m-commander 'cli\MyTest\TestMe' -v
+```
+
+Above notation is recommended if command have to be executed in CRON, or another shell script.
+
 For more examples please have a look in to ./examples folder
