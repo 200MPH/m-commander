@@ -22,6 +22,8 @@
 
 namespace mcommander;
 
+use mcommander\AbstractCliModule;
+
 class Cli {
     
     /**
@@ -48,6 +50,11 @@ class Cli {
      * @var array
      */
     private $argv = [];
+    
+    /**
+     * @var AbstractCliModule
+     */
+    private $abstractModule;
     
     /**
      * Render exception
@@ -152,7 +159,7 @@ class Cli {
                 
         $this->isModuleProvided();
        
-        $this->executeModule();
+        $this->tryModule();
         
     }
     
@@ -175,11 +182,11 @@ class Cli {
     }
     
     /**
-     * Execute module 
+     * Try load module
      * 
      * @throw RuntimeException
      */
-    private function executeModule()
+    private function tryModule()
     {
         
         // after filtering will be always as a last array element
@@ -187,15 +194,41 @@ class Cli {
         
         if(class_exists($module) === true) {
 
-            // pass original vars in to module constructor
-            $obj = new $module($this->argc, $this->argv);
+            $this->executeModule($module);
             
-            // execute() function is in AbstractCliModule()
-            call_user_func(array($obj, 'execute'));
-
         } else {
 
             throw new \RuntimeException("Module '{$module}' not found", CliCodes::MOD_NOT_FOUND);
+
+        }
+        
+    }
+    
+    /**
+     * Execute module
+     * 
+     * @param string $module
+     * @return void
+     */
+    private function executeModule($module)
+    {
+        
+        // pass original vars in to module constructor
+        $this->abstractModule = new $module($this->argc, $this->argv);
+
+        $lock = $this->abstractModule->isLocked();
+
+        if($lock === false) {
+
+            $this->abstractModule->setupOptions();
+
+            $this->abstractModule->execute();
+
+            $this->abstractModule->unlock();
+
+        } else {
+
+            CliColors::render("Process {$lock[0]} already locked at {$lock[1]}", CliColors::FG_WHITE, CliColors::BG_RED, true);
 
         }
         

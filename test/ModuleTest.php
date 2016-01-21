@@ -5,9 +5,7 @@ namespace test;
 use mcommander\AbstractCliModule;
 
 class ModuleTest extends AbstractCliModule {
-    
-    public $test = false;
-    
+        
     public function execute() 
     {
     
@@ -33,7 +31,8 @@ class ModuleTest extends AbstractCliModule {
     protected function testMe() 
     {
         
-        $this->test = true;
+        //throw any exception to proof that this functionality works
+        throw new \RuntimeException('Options works', \mcommander\CliCodes::OPT_FAIL);
         
     }
     
