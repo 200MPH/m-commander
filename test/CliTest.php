@@ -164,9 +164,10 @@ class TestCli extends \PHPUnit_Framework_TestCase {
     public function testLoadInternalOption_IsLoadedOk($option)
     {
         
-        $moduleTest = new ModuleTest(3, array('this/path/is/arg/as/wel', 'test\ModuleTest', $option));
+        // look in to ModuleTest::testMe()
+        $this->setExpectedException('RuntimeException', null, CliCodes::OPT_FAIL);
         
-        $this->assertTrue($moduleTest->test);
+        $this->cli->despatch(3, array('this/path/is/arg/as/wel', 'test\ModuleTest', $option));
         
     }
     
