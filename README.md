@@ -46,3 +46,18 @@ You can also use semi quotes to avoid double back slashes notation.
 Above notation is recommended if command have to be executed in CRON, or another shell script.
 
 For more examples please have a look in to ./examples folder
+
+4.Default options
+
+-h
+--help
+                        Display this page
+-v
+--verbose
+                        Verbose mode
+-w
+--write-output
+                        Write output in to file. Eg "./m-commander 'myNamespace\MyModule' -w /home/user/test.log"
+-l
+--lock
+                        Lock module process. Will not let you run another instance of this same module until current is finished. However you can execute script for another module.
