@@ -10,6 +10,8 @@
 
 namespace mcommander;
 
+use ReflectionObject;
+
 abstract class AbstractCliModule {
     
     /**
@@ -49,12 +51,24 @@ abstract class AbstractCliModule {
     private $writeOutputFile = false;
     
     /**
+     * Lock folder
+     * 
+     * @var string
+     */
+    private $lockFile = '/tmp/';
+    
+    /**
+     * @var ReflectionObject
+     */
+    private $reflection;
+    
+    /**
      * Execute command for module
      * Do the job you want to do in this function
      * 
      * @return void
      */
-    abstract protected function execute(); 
+    abstract public function execute(); 
     
     /**
      * 
@@ -67,7 +81,9 @@ abstract class AbstractCliModule {
         $this->argc = $cliArgsCount;
         $this->args = $cliArgs;
         
-        $this->setupOptions();
+        $this->reflection = new ReflectionObject( $this );
+        
+        $this->lockFile .= $this->reflection->getShortName() . '.lock';
                
     }
     
@@ -220,6 +236,62 @@ abstract class AbstractCliModule {
     }
     
     /**
+     * Lock current process
+     * 
+     * @return void
+     */
+    protected function lock()
+    {
+        
+        file_put_contents($this->lockFile, "". getmypid() ."@".date('Y-m-d G:i:s')."");
+        
+        $this->warningOutput('Process '. getmypid() . ' locked at ' . date('Y-m-d G:i:s') . PHP_EOL);
+                
+    }
+    
+    /**
+     * Check if process is locked and if so, display message.
+     * 
+     * @return bool|array False when not locked or [0] = PID [1] = Lock timestamp
+     */
+    public function isLocked()
+    {
+        
+        if(is_file($this->lockFile) === true) {
+            
+            $arr = $this->parseLockString();
+            
+            return $arr;
+            
+        } else {
+            
+            return false;
+            
+        }
+        
+    }
+    
+    /**
+     * Unlock process
+     * 
+     * @return void
+     */
+    public function unlock()
+    {
+        
+        if(is_file($this->lockFile) === true) {
+            
+            $arr = $this->parseLockString();
+            
+            unlink($this->lockFile);
+            
+            $this->successOutput("Process {$arr[0]} unlocked (Locked at {$arr[1]})" . PHP_EOL);
+            
+        }
+        
+    }
+    
+    /**
      * Load default options
      * 
      * @return void
@@ -237,7 +309,12 @@ abstract class AbstractCliModule {
         
         $this->defaultOptions[] = array('options' => array('-w', '--write-output'), 
                                         'callback' => 'writeOutput', 
-                                        'description' => 'Write output in to file. Eg "./m-commander myNamespace\\\MyModule -w /home/user/test.log"');
+                                        'description' => "Write output in to file. Eg ./m-commander 'myNamespace\MyModule' -w /home/user/test.log");
+        
+        $this->defaultOptions[] = array('options' => array('-l', '--lock'), 
+                                        'callback' => 'lock', 
+                                        'description' => 'Lock module process. Will not let you run another instance of this same module until current is finished. However you can execute script for another module.');
+        
         
     }
     
@@ -263,7 +340,7 @@ abstract class AbstractCliModule {
      * 
      * @return void
      */
-    final private function setupOptions()
+    final public function setupOptions()
     {
        
         $this->loadOptions();
@@ -366,4 +443,19 @@ abstract class AbstractCliModule {
         
     }
     
+    /**
+     * Parse lock string
+     * 
+     * @return bool|array False when not locked or [0] = PID [1] = Lock timestamp
+     */
+    final private function parseLockString()
+    {
+        
+        $line = file_get_contents($this->lockFile);
+            
+        $arr = explode('@', trim($line));
+        
+        return $arr;
+        
+    }
 }
