@@ -242,10 +242,10 @@ abstract class AbstractCliModule {
      */
     protected function lock()
     {
-                
+        
         file_put_contents($this->lockFile, "". getmypid() ."@".date('Y-m-d G:i:s')."");
         
-        $this->warningOutput('Process '. getmypid() . ' locked at ' . date('Y-m-d G:i:s') .PHP_EOL);
+        $this->warningOutput('Process '. getmypid() . ' locked at ' . date('Y-m-d G:i:s') . PHP_EOL);
                 
     }
     
@@ -259,9 +259,7 @@ abstract class AbstractCliModule {
         
         if(is_file($this->lockFile) === true) {
             
-            $line = file_get_contents($this->lockFile);
-            
-            $arr = explode('@', trim($line));
+            $arr = $this->parseLockString();
             
             return $arr;
             
@@ -283,11 +281,9 @@ abstract class AbstractCliModule {
         
         if(is_file($this->lockFile) === true) {
             
-            $line = file_get_contents($this->lockFile);
+            $arr = $this->parseLockString();
             
             unlink($this->lockFile);
-            
-            $arr = explode('@', trim($line));
             
             $this->successOutput("Process {$arr[0]} unlocked (Locked at {$arr[1]})" . PHP_EOL);
             
@@ -313,11 +309,11 @@ abstract class AbstractCliModule {
         
         $this->defaultOptions[] = array('options' => array('-w', '--write-output'), 
                                         'callback' => 'writeOutput', 
-                                        'description' => 'Write output in to file. Eg "./m-commander myNamespace\\\MyModule -w /home/user/test.log"');
+                                        'description' => "Write output in to file. Eg ./m-commander 'myNamespace\MyModule' -w /home/user/test.log");
         
         $this->defaultOptions[] = array('options' => array('-l', '--lock'), 
                                         'callback' => 'lock', 
-                                        'description' => 'Lock module process. Will not let you run another instance of this script until current process is finished. However you can execute script for another module.');
+                                        'description' => 'Lock module process. Will not let you run another instance of this same module until current is finished. However you can execute script for another module.');
         
         
     }
@@ -447,4 +443,19 @@ abstract class AbstractCliModule {
         
     }
     
+    /**
+     * Parse lock string
+     * 
+     * @return bool|array False when not locked or [0] = PID [1] = Lock timestamp
+     */
+    final private function parseLockString()
+    {
+        
+        $line = file_get_contents($this->lockFile);
+            
+        $arr = explode('@', trim($line));
+        
+        return $arr;
+        
+    }
 }
