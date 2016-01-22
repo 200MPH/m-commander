@@ -4,7 +4,7 @@ Easy tool for executing your own module via command line
 1.Install via Composer (best option, however you can use it without it)
 
 ```
-"200mph/m-commander": "1.*"
+"200mph/m-commander": "1.1.*"
 ```
 
 2.Create your command line module class and extend AbstractCliModule() from m-commander vendor
