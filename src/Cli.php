@@ -110,16 +110,9 @@ class Cli {
             
         }
         
-        print("\nUsage: ./vendor/bin/m-commander namespace\\\my\\\module [options] \n");
-        print("Example: ./vendor/bin/m-commander namespace\\\my\\\module -h \n\n");
-        
-        $this->yellowOutput("NOTICE! \n");
-        print("Each module might have different options \n");
-        print("So typing: \n");
-        $this->yellowOutput("./vendor/bin/m-commander namespace\\\my\\\module -h \n");
-        print("might give you different output than \n");
-        $this->yellowOutput("./vendor/bin/m-commander namespace\\\my\\\module -h \n");
-        print("Typing -h without module name will display this message. \n");
+        print("\nUsage: ./vendor/bin/m-commander 'namespace\to\my\module' [options] \n");
+        print("Example: ./vendor/bin/m-commander 'namespace\to\my\module' -h \n\n");
+        print("Typing -h without module will display this message. \n");
         
     }
     
@@ -231,19 +224,6 @@ class Cli {
             CliColors::render("Process {$lock[0]} already locked at {$lock[1]}", CliColors::FG_WHITE, CliColors::BG_RED, true);
 
         }
-        
-    }
-    
-    /**
-     * Colour output for help message
-     * 
-     * @param string $string
-     * @return void
-     */
-    private function yellowOutput($string)
-    {
-        
-        CliColors::render($string, CliColors::FG_YELLOW);
         
     }
     
