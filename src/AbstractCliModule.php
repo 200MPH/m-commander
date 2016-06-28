@@ -15,6 +15,22 @@ use ReflectionObject;
 abstract class AbstractCliModule {
     
     /**
+     * Email address for notification
+     * Set email address in your child class if you wish to receive notifications
+     * 
+     * @var string
+     */
+    public $email = null;
+    
+    /**
+     * Notification subject (email subject)
+     * Set it in you child class
+     * 
+     * @var string
+     */
+    public $notificationSubject = 'M-Commander Notification';
+    
+    /**
      * Args count
      * 
      * @var int
@@ -61,6 +77,13 @@ abstract class AbstractCliModule {
      * @var ReflectionObject
      */
     private $reflection;
+    
+    /**
+     * Disable email notification
+     * 
+     * @var bool
+     */
+    private $notify = true;
     
     /**
      * Execute command for module
@@ -170,6 +193,35 @@ abstract class AbstractCliModule {
     }
     
     /**
+     * Send email notification
+     * 
+     * @param const $type Notify::SUCCESS | Notify::ERROR | Notify::INFO
+     * @param string $message Message to be send. HTML code accepted
+     * 
+     * @return bool
+     */
+    protected function notify($type, $message)
+    {
+        
+        if($this->notify === true && empty($this->email) === false) {
+            
+            $notify = new Notify();
+            
+            $notify->setEmail($this->email);
+            
+            $notify->setSubject($this->notificationSubject);
+            
+            $notify->setMessage($message);
+            
+            return $notify->send($type);
+            
+        }
+        
+        return false;
+        
+    }
+    
+    /**
      * Show help message for module
      * 
      * @return void
@@ -250,6 +302,21 @@ abstract class AbstractCliModule {
     }
     
     /**
+     * Disable notification
+     * 
+     * @return void
+     */
+    protected function disableNotification()
+    {
+        
+        $this->notify = false;
+        
+        $this->output('Notification ');
+        $this->warningOutput('OFF' . PHP_EOL);
+        
+    }
+    
+    /**
      * Check if process is locked and if so, display message.
      * 
      * @return bool|array False when not locked or [0] = PID [1] = Lock timestamp
@@ -260,6 +327,8 @@ abstract class AbstractCliModule {
         if(is_file($this->lockFile) === true) {
             
             $arr = $this->parseLockString();
+            
+            $this->lockNotify();
             
             return $arr;
             
@@ -315,6 +384,9 @@ abstract class AbstractCliModule {
                                         'callback' => 'lock', 
                                         'description' => 'Lock module process. Will not let you run another instance of this same module until current is finished. However you can execute script for another module.');
         
+        $this->defaultOptions[] = array('options' => array('--disable-notification'), 
+                                        'callback' => 'disableNotification', 
+                                        'description' => 'Disable email notification');
         
     }
     
@@ -456,6 +528,29 @@ abstract class AbstractCliModule {
         $arr = explode('@', trim($line));
         
         return $arr;
+        
+    }
+    
+    /**
+     * Send email notification
+     * 
+     * @return void
+     */
+    final private function lockNotify()
+    {
+        
+        $lockData = $this->parseLockString();
+        $this->notificationSubject = "Process #{$lockData[0]} locked!";
+
+        $msg = "Process {$lockData[0]} locked at: {$lockData[1]} \n";
+        $msg .= "This is happens when: \n";
+        $msg .= "\t 1. Current process is not finished yet and another instance of the same job is started. \n";
+        $msg .= "\t 2. Previous instance crashed and left lock file. \n";
+        $msg .= "\nUnlock instruction: \n";
+        $msg .= "\t 1. Make sure that unlock process is safe \n";
+        $msg .= "\t 2. Remove lock file {$this->lockFile} (note that file name is various)\n";
+
+        $this->notify(Notify::ERROR, $msg);
         
     }
 }
