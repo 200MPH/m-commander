@@ -18,7 +18,7 @@ use mcommander\Cli;
 
 /* 
  * Autoloading
- * If you installed this library via composer, the best option is below code as is
+ * If you installed this library via composer, the best option is to leave below code as is
  * If you have your own autoloader include it here
  */
 require_once __DIR__ . '/../composer-autoload.php';
