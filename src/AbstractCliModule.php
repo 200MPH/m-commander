@@ -317,6 +317,21 @@ abstract class AbstractCliModule {
     }
     
     /**
+     * Disable error notification
+     * 
+     * @return void
+     */
+    protected function disableErrors()
+    {
+        
+        ini_set('display_errors', '0');
+        
+        $this->output('Error notification ');
+        $this->warningOutput('OFF' . PHP_EOL);
+        
+    }
+    
+    /**
      * Check if process is locked and if so, display message.
      * 
      * @return bool|array False when not locked or [0] = PID [1] = Lock timestamp
@@ -387,6 +402,10 @@ abstract class AbstractCliModule {
         $this->defaultOptions[] = array('options' => array('--disable-notification'), 
                                         'callback' => 'disableNotification', 
                                         'description' => 'Disable email notification');
+        
+        $this->defaultOptions[] = array('options' => array('--disable-errors'), 
+                                        'callback' => 'disableErrors', 
+                                        'description' => 'Disable errors notification');
         
     }
     
