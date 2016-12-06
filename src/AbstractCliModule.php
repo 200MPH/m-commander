@@ -116,7 +116,7 @@ abstract class AbstractCliModule {
      * @param string Text to display
      * @return void
      */
-    protected function output($string)
+    public function output($string)
     {
         
         if($this->verbose === true) {
@@ -137,7 +137,7 @@ abstract class AbstractCliModule {
      * @param string Text to display
      * @return void
      */
-    protected function successOutput($string)
+    public function successOutput($string)
     {
         
         if($this->verbose === true) {
@@ -158,7 +158,7 @@ abstract class AbstractCliModule {
      * @param string Text to display
      * @return void
      */
-    protected function errorOutput($string)
+    public function errorOutput($string)
     {
         
         if($this->verbose === true) {
@@ -179,7 +179,7 @@ abstract class AbstractCliModule {
      * @param string Text to display
      * @return void
      */
-    protected function warningOutput($string)
+    public function warningOutput($string)
     {
         
         if($this->verbose === true) {
@@ -200,7 +200,7 @@ abstract class AbstractCliModule {
      * 
      * @return bool
      */
-    protected function notify($type, $message)
+    public function notify($type, $message)
     {
         
         if($this->notify === true && empty($this->email) === false) {
